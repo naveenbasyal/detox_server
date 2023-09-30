@@ -79,6 +79,19 @@ const getAllPublicEntries = async (req, res) => {
     return res.status(500).json({ message: "Something went wrong" });
   }
 };
+// Get Pubic entry of a particular user by id
+const getPublicEntryById = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const publicEntry = await DailyEntry.find({
+      userId:id,
+      visibility: "public",
+    });
+    return res.status(200).json({ publicEntry });
+  } catch (error) {
+    return res.status(500).json({ message: "Something went wrong" });
+  }
+};
 const getEntryById = async (req, res) => {
   const { id } = req.params;
   try {
@@ -90,8 +103,8 @@ const getEntryById = async (req, res) => {
 };
 const updateEntryById = async (req, res) => {
   const { id } = req.body;
-  const userId = req.user.id; 
-  const { mood, content,visibility } = req.body;
+  const userId = req.user.id;
+  const { mood, content, visibility } = req.body;
   try {
     const entry = await DailyEntry.findById(id);
     if (!entry) {
@@ -102,7 +115,7 @@ const updateEntryById = async (req, res) => {
     }
     const updatedEntry = await DailyEntry.findByIdAndUpdate(
       id,
-      { mood, content,visibility },
+      { mood, content, visibility },
       { new: true }
     );
     return res
@@ -138,4 +151,5 @@ module.exports = {
   updateEntryById,
   deleteEntryById,
   getAllPublicEntries,
+  getPublicEntryById
 };

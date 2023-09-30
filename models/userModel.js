@@ -13,6 +13,7 @@ const userSchema = new mongoose.Schema(
     points: { type: Number, default: 0 },
     level: { type: Number, default: 1 },
     lastEntryDate: { type: Date, default: null },
+    verified: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

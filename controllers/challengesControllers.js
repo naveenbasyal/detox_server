@@ -111,10 +111,14 @@ const submitChallenge = async (req, res) => {
       return res.status(404).json({ message: "Challenge not found" });
     }
     const user = await User.findById(userId);
-    if (challenge.participants.includes(userId)) {
+    if (
+      challenge.participants.some((participant) =>
+        participant._id.equals(user._id)
+      )
+    ) {
       return res.status(400).json({ message: "Already submitted" });
     }
-    challenge.participants.push(userId);
+    challenge.participants.push(user);
     user.points += challenge.points;
     await user.save();
     await challenge.save();
