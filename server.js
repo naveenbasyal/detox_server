@@ -1,30 +1,42 @@
 const express = require("express");
 const app = express();
 const cors = require("cors");
+const http = require("http").Server(app);
+const io = require("socket.io")(http);
 const port = process.env.PORT || 5000;
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const userRoutes = require("./routes/userRoutes");
 const dailyEntriesRoutes = require("./routes/dailyEntriesRoutes");
 const challengesRoutes = require("./routes/challengesRoutes");
+const chatRoutes = require("./routes/chatRoutes");
+const ChatMessage = require("./models/chatModel");
 dotenv.config();
-// middlewares
+
+// Middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());
+const corsOptions = {
+  origin: "http://localhost:3000",
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  credentials: true, // Required for cookies, authorization headers, etc.
+};
+app.use(cors(corsOptions));
 
-// db connection
-
+// DB connection
 mongoose
   .connect(process.env.MONGO_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
-  .then(() =>
-    app.listen(port, () => {
-      console.log(`DB connected & Server running on http://localhost:${port}`);
-    })
-  );
+  .then(() => {
+    console.log(`DB connected & Server running on http://localhost:${port}`);
+    http.listen(port);
+  })
+  .catch((error) => {
+    console.error("DB Connection Error:", error);
+  });
+
 const db = mongoose.connection;
 
 db.on("error", (err) => {
@@ -35,11 +47,34 @@ db.once("open", () => {
   console.log("Connected to MongoDB");
 });
 
+// Socket.io
+io.on("connection", (socket) => {
+  console.log("A user connected");
+
+  // Handle chat messages
+  socket.on("chat message", async (message) => {
+    // Save the chat message to the database using the ChatMessage model
+    console.log(message);
+    const chatMessage = new ChatMessage(message); // Assuming messageData has the necessary fields (message, username, userImage)
+    await chatMessage.save();
+
+    // Broadcast the message to all connected clients
+    io.emit("chat message", message);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("A user disconnected");
+  });
+});
+
+
+// Routes
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 
-// routes
-app.use("/api/users",userRoutes);
+app.use("/api/users", userRoutes);
 app.use("/api/daily-entries", dailyEntriesRoutes);
 app.use("/api/challenges", challengesRoutes);
+app.use("/api/chat",chatRoutes) ;
+

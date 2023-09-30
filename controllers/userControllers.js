@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken");
 // nodemailer
 const nodemailer = require("nodemailer");
 const DailyEntry = require("../models/dailyEntriesModel");
+const ChatMessage = require("../models/chatModel");
 
 //registeration
 
@@ -156,6 +157,7 @@ const getUserById = async (req, res) => {
   }
 };
 //updateProfile
+
 const updateUserById = async (req, res) => {
   const { id } = req.params;
   const userId = req.user.id;
@@ -172,11 +174,20 @@ const updateUserById = async (req, res) => {
         .status(401)
         .json({ message: "You are not authorized to update this profile" });
     }
+
+    // Update the user's profile picture
     const user = await User.findByIdAndUpdate(
       id,
       { username, picture },
       { new: true }
     );
+
+    // Update all chat messages with the matching userId
+    await ChatMessage.updateMany(
+      { userId: userId },
+      { username, userImage: picture }
+    );
+
     console.log("user", user);
     return res
       .status(200)
@@ -185,6 +196,7 @@ const updateUserById = async (req, res) => {
     return res.status(500).json({ message: "Something went wrong" });
   }
 };
+
 
 // forgotpassword
 const forgotpassword = async (req, res) => {
@@ -293,7 +305,7 @@ const deleteUser = async (req, res) => {
 
 const verifyUser = async (req, res) => {
   const { id, token } = req.params;
-  
+
   try {
     const user = await User.findById(id);
     if (!user) {
@@ -307,7 +319,9 @@ const verifyUser = async (req, res) => {
     user.verified = true;
     await user.save();
 
-    return res.status(200).json({ message: "Email verification successful",status:200 });
+    return res
+      .status(200)
+      .json({ message: "Email verification successful", status: 200 });
   } catch (error) {
     return res.status(500).json({ message: "Something went wrong" });
   }
