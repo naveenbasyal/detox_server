@@ -67,26 +67,6 @@ io.on("connection", (socket) => {
 
     // Broadcast the message to all connected clients except the sender
     socket.broadcast.emit("chat message", message);
-
-    // Send a notification to all users except the sender
-    const { userId } = message;
-
-    console.log(io.sockets.sockets)
-    // // Get the IDs of all connected sockets except the sender
-    // const connectedSocketIds = Object.keys(io.sockets.sockets).filter(
-    //   (socketId) => socketId !== socket.id
-    // );
-    // console.log(connectedSocketIds)
-
-    // // Send a notification to each connected socket except the sender
-    // connectedSocketIds.forEach((socketId) => {
-    //   const connectedSocket = io.sockets.sockets[socketId];
-    //   notifier.notify({
-    //     title: "New Message",
-    //     message: `New message from ${message.username}`,
-    //     icon: `${message.userImage}`,
-    //   });
-    // });
   });
 
   socket.on("disconnect", () => {
