@@ -9,9 +9,7 @@ const getAllChats = async (req, res) => {
     return res.status(500).json({ error: "Unable to fetch chat messages" });
   }
 };
-// const updateChatImage = async (req, res) => {
 
 module.exports = {
   getAllChats,
-  // updateChatImage,
 };

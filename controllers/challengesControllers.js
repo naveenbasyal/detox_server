@@ -5,10 +5,15 @@ const createChallenge = async (req, res) => {
   const { title, description, points, enddate } = req.body;
   //   Admin Check
   const Email = req.user.email;
-  if (Email !== process.env.ADMIN_EMAIL) {
-    return res.status(401).json({ message: "Access Denied" });
-  }
+  // if (Email !== process.env.ADMIN_EMAIL) {
+  //   return res.status(401).json({ message: "Access Denied" });
+  // }
   try {
+    const user = await User.findOne({ email: Email });
+
+    if (!user.admin) {
+      return res.status(401).json({ message: "Access Denied" });
+    }
     const challenge = new Challenges({
       title,
       description,
@@ -38,9 +43,12 @@ const getAllChallenges = async (req, res) => {
 const getChallengeById = async (req, res) => {
   const { id } = req.params;
   const userid = req.user?.id;
-  console.log("userid", userid);
+
   try {
     const challenge = await Challenges.findById({ _id: id });
+    if (!challenge) {
+      return res.status(404).json({ message: "Challenge not found" });
+    }
 
     const isSubmitted = challenge.participants.includes(userid);
 
@@ -53,12 +61,14 @@ const getChallengeById = async (req, res) => {
 const updateChallengeById = async (req, res) => {
   //   Admin Check
   const Email = req.user.email;
-  if (Email !== process.env.ADMIN_EMAIL) {
-    return res.status(401).json({ message: "Access Denied" });
-  }
+
   const { id, title, description, points, enddate } = req.body;
-  console.log(id, title, description, points, enddate);
+
   try {
+    const user = await User.find({ email: Email });
+    if (!user.admin) {
+      return res.status(401).json({ message: "Access Denied" });
+    }
     const updatedChallenge = await Challenges.findByIdAndUpdate(
       id,
       {
@@ -84,13 +94,13 @@ const updateChallengeById = async (req, res) => {
 const deleteChallengeById = async (req, res) => {
   //   Admin Check
   const Email = req.user.email;
-  console.log(Email);
-  if (Email !== process.env.ADMIN_EMAIL) {
-    return res.status(401).json({ message: "Access Denied" });
-  }
   const { id } = req.body;
   console.log(id);
   try {
+    const user = await User.find({ email: Email });
+    if (!user.admin) {
+      return res.status(401).json({ message: "Access Denied" });
+    }
     await Challenges.findByIdAndDelete(id, {
       new: true,
     });

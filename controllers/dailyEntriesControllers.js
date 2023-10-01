@@ -142,12 +142,11 @@ const deleteEntryById = async (req, res) => {
     return res.status(500).json({ message: "Something went wrong" });
   }
 };
-// const likeEntryById = async (req, res) => {};
 
 module.exports = {
   createDailyEntry,
   getAllEntries,
-  getEntryById,
+  getEntryById, 
   updateEntryById,
   deleteEntryById,
   getAllPublicEntries,

@@ -32,10 +32,10 @@ const registerUser = async (req, res) => {
     const link = `${process.env.CLIENT_URL}/verify/${user._id}/${verificationToken}`;
 
     const transporter = nodemailer.createTransport({
-      service: "gmail",
+      service: process.env.SERVICE,
       auth: {
         user: process.env.ADMIN_EMAIL,
-        pass: "egqlnqvpjhgpejhq",
+        pass: process.env.PASSWORD,
       },
     });
     const mailOptions = {
@@ -55,7 +55,7 @@ const registerUser = async (req, res) => {
         console.log("Email sent: " + info.response);
         return res.status(200).json({
           message:
-            "Verification link has been sent to your email, Please verify it.",
+            "Verification link has been sent to your email, Please verify it, if not found in inbox check spam folder.",
         });
       }
     });
@@ -96,10 +96,10 @@ const loginUser = async (req, res) => {
       const link = `${process.env.CLIENT_URL}/verify/${user._id}/${verificationToken}`;
 
       const transporter = nodemailer.createTransport({
-        service: "gmail",
+        service: process.env.SERVICE,
         auth: {
           user: process.env.ADMIN_EMAIL,
-          pass: "egqlnqvpjhgpejhq",
+          pass: process.env.PASSWORD,
         },
       });
       const mailOptions = {
@@ -119,7 +119,7 @@ const loginUser = async (req, res) => {
           console.log("Email sent: " + info.response);
           return res.status(200).json({
             message:
-              "Verification link has been sent to your email, Please verify it.",
+              "Verification link has been sent to your email, Please verify it. if not found in inbox check spam folder.",
           });
         }
       });
@@ -188,7 +188,6 @@ const updateUserById = async (req, res) => {
       { username, userImage: picture }
     );
 
-    console.log("user", user);
     return res
       .status(200)
       .json({ message: "Profile updated successfully", user: user });
@@ -196,7 +195,6 @@ const updateUserById = async (req, res) => {
     return res.status(500).json({ message: "Something went wrong" });
   }
 };
-
 
 // forgotpassword
 const forgotpassword = async (req, res) => {
@@ -215,10 +213,10 @@ const forgotpassword = async (req, res) => {
     const link = `${process.env.CLIENT_URL}/resetpassword/${user._id}/${token}`;
 
     const transporter = nodemailer.createTransport({
-      service: "gmail",
+      service: process.env.SERVICE,
       auth: {
         user: process.env.ADMIN_EMAIL,
-        pass: "egqlnqvpjhgpejhq",
+        pass: process.env.PASSWORD,
       },
     });
     const mailOptions = {
@@ -285,14 +283,14 @@ const resetpassword = async (req, res) => {
 // Delete User
 const deleteUser = async (req, res) => {
   const { id } = req?.body;
-  console.log("deete", id);
   try {
     const user = await User.findById(id);
-    // delete all the entries of user
-    await DailyEntry.deleteMany({ userId: id });
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
+    // delete all the entries of user
+    await DailyEntry.deleteMany({ userId: id });
+    await ChatMessage.deleteMany({ userId: id });
     await User.findByIdAndDelete(id, {
       new: true,
     });
