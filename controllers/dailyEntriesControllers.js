@@ -56,9 +56,20 @@ const createDailyEntry = async (req, res) => {
     return res.status(500).json({ message: "Something went wrong" });
   }
 };
-// Get all entries of the user
+// Get all entries of the user who is logged in
 const getAllEntries = async (req, res) => {
   const userId = req.user.id;
+  try {
+    const entries = await DailyEntry.find({ userId }).sort({ createdAt: -1 });
+    return res.status(200).json({ entries });
+  } catch (error) {
+    return res.status(500).json({ message: "Something went wrong" });
+  }
+};
+// Get all entries of the user to show the calendar while inspecting the user
+const getAllEntriesForCalendar = async (req, res) => {
+  const userId = req?.params?.id;
+  console.log("----->",userId);
   try {
     const entries = await DailyEntry.find({ userId }).sort({ createdAt: -1 });
     return res.status(200).json({ entries });
@@ -150,5 +161,6 @@ module.exports = {
   updateEntryById,
   deleteEntryById,
   getAllPublicEntries,
-  getPublicEntryById
+  getPublicEntryById,
+  getAllEntriesForCalendar
 };

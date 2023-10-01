@@ -6,13 +6,16 @@ const {
   getEntryById,
   getAllPublicEntries,
   getPublicEntryById,
+  getAllEntriesForCalendar,
 } = require("../controllers/dailyEntriesControllers");
 const verifyToken = require("../middlewares/verifyToken");
 
 const router = require("express").Router();
 
-// get all entries of a user
+// get all entries of a user who is logged in
 router.get("/", verifyToken, getAllEntries);
+// get all entries of a user to show the calendar while inspecting the user
+router.get("/calendar/:id", verifyToken, getAllEntriesForCalendar);
 // get all public entries of all the users
 router.get("/allpublicentries", verifyToken, getAllPublicEntries);
 // get public entry of a user by id

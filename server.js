@@ -12,16 +12,16 @@ const challengesRoutes = require("./routes/challengesRoutes");
 const chatRoutes = require("./routes/chatRoutes");
 const ChatMessage = require("./models/chatModel");
 dotenv.config();
-const cron = require('node-cron');
-const notifier = require('node-notifier');
+const cron = require("node-cron");
+const notifier = require("node-notifier");
 
 // Schedule notifications to be sent at 9:20 PM
-cron.schedule('30 21 * * *', () => {
+cron.schedule("30 21 * * *", () => {
   // Send a customized system notification at 9:20 PM
   notifier.notify({
-    title: 'DetoxifyMe', 
+    title: "DetoxifyMe",
     message: "Don't forget to write your post!",
-    icon: './assets/images/favicon.png',  
+    icon: "./assets/images/favicon.png",
   });
 });
 
@@ -65,8 +65,28 @@ io.on("connection", (socket) => {
     const chatMessage = new ChatMessage(message);
     await chatMessage.save();
 
-    // Broadcast the message to all connected clients
-    io.emit("chat message", message);
+    // Broadcast the message to all connected clients except the sender
+    socket.broadcast.emit("chat message", message);
+
+    // Send a notification to all users except the sender
+    const { userId } = message;
+
+    console.log(io.sockets.sockets)
+    // // Get the IDs of all connected sockets except the sender
+    // const connectedSocketIds = Object.keys(io.sockets.sockets).filter(
+    //   (socketId) => socketId !== socket.id
+    // );
+    // console.log(connectedSocketIds)
+
+    // // Send a notification to each connected socket except the sender
+    // connectedSocketIds.forEach((socketId) => {
+    //   const connectedSocket = io.sockets.sockets[socketId];
+    //   notifier.notify({
+    //     title: "New Message",
+    //     message: `New message from ${message.username}`,
+    //     icon: `${message.userImage}`,
+    //   });
+    // });
   });
 
   socket.on("disconnect", () => {
