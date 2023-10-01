@@ -12,6 +12,18 @@ const challengesRoutes = require("./routes/challengesRoutes");
 const chatRoutes = require("./routes/chatRoutes");
 const ChatMessage = require("./models/chatModel");
 dotenv.config();
+const cron = require('node-cron');
+const notifier = require('node-notifier');
+
+// Schedule notifications to be sent at 9:20 PM
+cron.schedule('30 21 * * *', () => {
+  // Send a customized system notification at 9:20 PM
+  notifier.notify({
+    title: 'DetoxifyMe', 
+    message: "Don't forget to write your post!",
+    icon: './assets/images/favicon.png',  
+  });
+});
 
 // Middlewares
 app.use(express.json());
@@ -50,8 +62,7 @@ db.once("open", () => {
 // Socket.io
 io.on("connection", (socket) => {
   socket.on("chat message", async (message) => {
-    
-    const chatMessage = new ChatMessage(message); 
+    const chatMessage = new ChatMessage(message);
     await chatMessage.save();
 
     // Broadcast the message to all connected clients
@@ -63,7 +74,6 @@ io.on("connection", (socket) => {
   });
 });
 
-
 // Routes
 app.get("/", (req, res) => {
   res.send("Hello World!");
@@ -72,5 +82,4 @@ app.get("/", (req, res) => {
 app.use("/api/users", userRoutes);
 app.use("/api/daily-entries", dailyEntriesRoutes);
 app.use("/api/challenges", challengesRoutes);
-app.use("/api/chat",chatRoutes) ;
-
+app.use("/api/chat", chatRoutes);
