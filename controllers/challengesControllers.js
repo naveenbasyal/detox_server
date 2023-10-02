@@ -11,9 +11,7 @@ const createChallenge = async (req, res) => {
   try {
     const user = await User.findOne({ email: Email });
 
-    if (!user.admin) {
-      return res.status(401).json({ message: "Access Denied" });
-    }
+    
     const challenge = new Challenges({
       title,
       description,
@@ -66,9 +64,8 @@ const updateChallengeById = async (req, res) => {
 
   try {
     const user = await User.find({ email: Email });
-    if (!user.admin) {
-      return res.status(401).json({ message: "Access Denied" });
-    }
+    
+    
     const updatedChallenge = await Challenges.findByIdAndUpdate(
       id,
       {
@@ -98,9 +95,7 @@ const deleteChallengeById = async (req, res) => {
   console.log(id);
   try {
     const user = await User.find({ email: Email });
-    if (!user.admin) {
-      return res.status(401).json({ message: "Access Denied" });
-    }
+   
     await Challenges.findByIdAndDelete(id, {
       new: true,
     });
