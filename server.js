@@ -28,8 +28,9 @@ cron.schedule("30 21 * * *", () => {
 // Middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+console.log(process.env.CLIENT_URL);
 const corsOptions = {
-  origin: process.env.CLIENT_URL,
+  origin: "https://detoxifyme.netlify.app",
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
   credentials: true, // Required for cookies, authorization headers, etc.
 };
