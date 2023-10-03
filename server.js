@@ -30,7 +30,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 console.log(process.env.CLIENT_URL);
 const corsOptions = {
-  origin: "https://detoxifyme.netlify.app",
+  origin: "https://detoxifyme.netlify.app" || "http://localhost:3000",
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
   credentials: true, // Required for cookies, authorization headers, etc.
 };
