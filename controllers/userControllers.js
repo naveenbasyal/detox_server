@@ -15,7 +15,9 @@ const registerUser = async (req, res) => {
   try {
     const isExist = await User.findOne({ email });
     if (isExist) {
-      return res.status(400).json({ message: "User already exists" });
+      return res
+        .status(400)
+        .json({ message: "User already exists, please Login" });
     }
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = new User({ username, email, password: hashedPassword });
@@ -73,11 +75,13 @@ const registerUser = async (req, res) => {
 // Login
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
-
+  console.log("hitted", email);
   try {
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(400).json({ message: "User does not exists" });
+      return res
+        .status(400)
+        .json({ message: "User does not exists, please create an account." });
     }
     const matchPassword = await bcrypt.compare(password, user.password);
     if (!matchPassword) {
@@ -324,6 +328,37 @@ const verifyUser = async (req, res) => {
     return res.status(500).json({ message: "Something went wrong" });
   }
 };
+const googleLogin = async (req, res) => {
+  const { email_verified, name, clientId, email, picture } = req.body;
+  try {
+    if (email_verified) {
+      const user = await User.findOne({ email });
+      if (user) {
+        return res.status(200).json({
+          message: "User logged in successfully",
+          user: user,
+          token: generateToken(user._id, user.email),
+        });
+      } else {
+        const password = email + clientId;
+        const user = new User({
+          username: name,
+          email,
+          password,
+          picture,
+        });
+        await user.save();
+        return res.status(200).json({
+          message: "User logged in successfully",
+          user: user,
+          token: generateToken(user._id, user.email),
+        });
+      }
+    }
+  } catch (error) {
+    res.status(500).json({ message: "Something went wrong" });
+  }
+};
 
 module.exports = {
   registerUser,
@@ -335,4 +370,5 @@ module.exports = {
   resetpassword,
   deleteUser,
   verifyUser,
+  googleLogin,
 };

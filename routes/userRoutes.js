@@ -8,6 +8,7 @@ const {
   resetpassword,
   deleteUser,
   verifyUser,
+  googleLogin,
 } = require("../controllers/userControllers");
 const verifyToken = require("../middlewares/verifyToken");
 
@@ -22,5 +23,6 @@ router.get("/:id", verifyToken, getUserById);
 router.get("/verify/:id/:token", verifyUser);
 router.put("/update/:id", verifyToken, updateUserById);
 router.delete("/", verifyToken, deleteUser);
+router.post("/google-login", googleLogin);
 
 module.exports = router;
