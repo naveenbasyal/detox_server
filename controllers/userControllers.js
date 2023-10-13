@@ -334,6 +334,10 @@ const googleLogin = async (req, res) => {
     if (email_verified) {
       const user = await User.findOne({ email });
       if (user) {
+        if (!user.verified) {
+          user.verified = true;
+          await user.save();
+        }
         return res.status(200).json({
           message: "User logged in successfully",
           user: user,
@@ -346,7 +350,9 @@ const googleLogin = async (req, res) => {
           email,
           password,
           picture,
+          verified: true,
         });
+
         await user.save();
         return res.status(200).json({
           message: "User logged in successfully",
