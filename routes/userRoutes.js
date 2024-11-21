@@ -14,6 +14,9 @@ const verifyToken = require("../middlewares/verifyToken");
 
 const router = require("express").Router();
 
+router.get("/health", (req, res) => {
+  res.send("Route is working fine.");
+});
 router.post("/register", registerUser);
 router.post("/login", loginUser);
 router.post("/forgotpassword", forgotpassword);
